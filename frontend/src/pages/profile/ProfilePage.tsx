@@ -1,8 +1,14 @@
 import { PageHeader } from '../../components/common/PageHeader';
 import { Card } from '../../components/common/Card';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const ProfilePage = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{"name": "Admin User", "email": "admin@assetflow.com"}');
+  const { user } = useAuth();
+  
+  const name = user?.name || 'User';
+  const email = user?.email || '';
+  const role = user?.role || 'EMPLOYEE';
+  const employeeCode = user?.employee_code || 'N/A';
 
   return (
     <div className="space-y-6">
@@ -21,28 +27,28 @@ export const ProfilePage = () => {
               />
             </div>
           </div>
-          <h3 className="text-lg font-bold text-base-content">{user.name}</h3>
-          <span className="badge badge-primary text-xs mt-1 font-semibold">{user.role || 'ADMIN'}</span>
-          <p className="text-sm text-base-content/50 mt-2 truncate w-full px-4">{user.email}</p>
+          <h3 className="text-lg font-bold text-base-content">{name}</h3>
+          <span className="badge badge-primary text-xs mt-1 font-semibold">{role}</span>
+          <p className="text-sm text-base-content/50 mt-2 truncate w-full px-4">{email}</p>
         </Card>
         
         <Card title="Account Details" className="md:col-span-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <span className="text-xs font-semibold text-base-content/40 uppercase block">Full Name</span>
-              <span className="text-sm font-semibold text-base-content block mt-1">{user.name}</span>
+              <span className="text-sm font-semibold text-base-content block mt-1">{name}</span>
             </div>
             <div>
               <span className="text-xs font-semibold text-base-content/40 uppercase block">Email Address</span>
-              <span className="text-sm font-semibold text-base-content block mt-1">{user.email}</span>
+              <span className="text-sm font-semibold text-base-content block mt-1">{email}</span>
             </div>
             <div>
               <span className="text-xs font-semibold text-base-content/40 uppercase block">User Role</span>
-              <span className="text-sm font-semibold text-base-content block mt-1">{user.role || 'ADMIN'}</span>
+              <span className="text-sm font-semibold text-base-content block mt-1">{role}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-base-content/40 uppercase block">Session Token Status</span>
-              <span className="text-sm font-semibold text-success block mt-1">Active Mock JWT</span>
+              <span className="text-xs font-semibold text-base-content/40 uppercase block">Employee Code</span>
+              <span className="text-sm font-semibold text-base-content block mt-1">{employeeCode}</span>
             </div>
           </div>
         </Card>

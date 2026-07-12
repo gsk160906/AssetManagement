@@ -21,7 +21,6 @@ const sqlFiles = [
   'schema/tables/notifications.sql',
   'schema/tables/activity_logs.sql',
   'schema/indexes.sql',
-  'seed/seed_data.sql',
 ];
 
 const runSchema = async () => {

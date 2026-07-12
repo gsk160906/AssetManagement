@@ -8,18 +8,24 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { ROUTES } from '../../constants/routes';
+import { useAuth } from '../../contexts/AuthContext';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().trim().email('Please enter a valid email address'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login, authError, setAuthError } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const {
     register,
@@ -36,20 +42,16 @@ export const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    setErrorMsg(null);
+    setAuthError(null);
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simple validation bypass for demo
-    if (data.email && data.password) {
-      localStorage.setItem('token', 'mock-jwt-session-token');
-      localStorage.setItem('user', JSON.stringify({ email: data.email, role: 'ADMIN', name: 'John Doe' }));
+    try {
+      await login(data.email, data.password);
       navigate(ROUTES.DASHBOARD);
-    } else {
-      setErrorMsg('Invalid email or password');
+    } catch (error) {
+      // AuthContext handles setting the authError message
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleDemoFill = () => {
@@ -67,10 +69,10 @@ export const LoginPage: React.FC = () => {
         <p className="text-sm text-base-content/60 mt-1">Enterprise Asset & Resource Management</p>
       </div>
 
-      {errorMsg && (
+      {authError && (
         <div className="alert alert-error text-sm py-2 px-3 mb-4 rounded-lg flex items-center gap-2 text-white">
           <ShieldAlert size={16} />
-          <span>{errorMsg}</span>
+          <span>{authError}</span>
         </div>
       )}
 

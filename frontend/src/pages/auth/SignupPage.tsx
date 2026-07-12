@@ -1,62 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Mail, Lock, User, ShieldAlert } from 'lucide-react';
-import { Input } from '../../components/common/Input';
-import { Button } from '../../components/common/Button';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
 import { Card } from '../../components/common/Card';
+import { Button } from '../../components/common/Button';
 import { ROUTES } from '../../constants/routes';
 
-const signupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
-type SignupFormValues = z.infer<typeof signupSchema>;
-
 export const SignupPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-  });
-
-  const onSubmit = async (data: SignupFormValues) => {
-    setIsLoading(true);
-    setErrorMsg(null);
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    try {
-      localStorage.setItem('token', 'mock-jwt-session-token');
-      localStorage.setItem('user', JSON.stringify({ email: data.email, role: 'ADMIN', name: data.name }));
-      navigate(ROUTES.DASHBOARD);
-    } catch {
-      setErrorMsg('Something went wrong. Please try again.');
-    }
-    setIsLoading(false);
-  };
-
   return (
     <Card className="w-full max-w-md border border-base-300 shadow-xl bg-base-100/90 backdrop-blur-md">
       <div className="flex flex-col items-center mb-6 text-center">
@@ -67,59 +16,24 @@ export const SignupPage: React.FC = () => {
         <p className="text-sm text-base-content/60 mt-1">Get started with AssetFlow ERP</p>
       </div>
 
-      {errorMsg && (
-        <div className="alert alert-error text-sm py-2 px-3 mb-4 rounded-lg flex items-center gap-2 text-white">
-          <ShieldAlert size={16} />
-          <span>{errorMsg}</span>
+      <div className="alert alert-warning flex flex-col items-center gap-3 p-6 text-center rounded-xl bg-warning/10 border border-warning/20 text-warning-content">
+        <div className="p-3 bg-warning/20 rounded-full text-warning">
+          <ShieldAlert size={28} />
         </div>
-      )}
+        <div className="space-y-1">
+          <h3 className="font-bold text-base text-warning">Registration Restricted</h3>
+          <p className="text-sm opacity-90 leading-relaxed text-base-content">
+            Employee accounts are created by your organization's Administrator. Please contact your administrator.
+          </p>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          label="Full Name"
-          type="text"
-          placeholder="John Doe"
-          icon={<User size={16} />}
-          error={errors.name?.message}
-          {...register('name')}
-        />
-
-        <Input
-          label="Email Address"
-          type="email"
-          placeholder="name@company.com"
-          icon={<Mail size={16} />}
-          error={errors.email?.message}
-          {...register('email')}
-        />
-
-        <Input
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          icon={<Lock size={16} />}
-          error={errors.password?.message}
-          {...register('password')}
-        />
-
-        <Input
-          label="Confirm Password"
-          type="password"
-          placeholder="••••••••"
-          icon={<Lock size={16} />}
-          error={errors.confirmPassword?.message}
-          {...register('confirmPassword')}
-        />
-
-        <Button type="submit" variant="primary" fullWidth isLoading={isLoading} className="mt-2">
-          Create Account
-        </Button>
-      </form>
-
-      <div className="text-center mt-6 text-sm text-base-content/60">
-        Already have an account?{' '}
-        <Link to={ROUTES.LOGIN} className="text-primary hover:underline font-semibold">
-          Sign In
+      <div className="mt-6 text-center">
+        <Link to={ROUTES.LOGIN}>
+          <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+            <ArrowLeft size={16} />
+            Back to Sign In
+          </Button>
         </Link>
       </div>
     </Card>

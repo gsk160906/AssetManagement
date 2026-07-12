@@ -14,17 +14,20 @@ import {
   Menu 
 } from 'lucide-react';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    await logout();
     navigate(ROUTES.LOGIN);
   };
 
-  const user = JSON.parse(localStorage.getItem('user') || '{"name": "Admin User", "email": "admin@assetflow.com"}');
+  const displayName = user?.name || 'User';
+  const displayEmail = user?.email || '';
 
   return (
     <div className="navbar bg-base-100 border-b border-base-300 px-4 py-2 sticky top-0 z-30">
@@ -99,8 +102,8 @@ export const Navbar: React.FC = () => {
           </label>
           <ul tabIndex={0} className="menu dropdown-content mt-3 z-40 p-2 shadow-xl border border-base-300 bg-base-100 rounded-xl w-56 space-y-1">
             <div className="px-3 py-2 border-b border-base-300">
-              <p className="font-semibold text-sm text-base-content">{user.name}</p>
-              <p className="text-xs text-base-content/50 truncate mt-0.5">{user.email}</p>
+              <p className="font-semibold text-sm text-base-content">{displayName}</p>
+              <p className="text-xs text-base-content/50 truncate mt-0.5">{displayEmail}</p>
             </div>
             <li>
               <Link to={ROUTES.PROFILE} className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">

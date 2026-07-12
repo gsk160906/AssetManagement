@@ -18,8 +18,5 @@
 \i schema/tables/notifications.sql
 \i schema/tables/activity_logs.sql
 
--- 3. Indexes
+-- 3. Load Indexes
 \i schema/indexes.sql
-
--- 4. Seed Data
-\i seed/seed_data.sql
