@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS transfer_requests CASCADE;
+CREATE TABLE transfer_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    asset_id UUID REFERENCES assets(id) ON DELETE RESTRICT NOT NULL,
+    requested_by_id UUID REFERENCES users(id) ON DELETE RESTRICT NOT NULL,
+    from_employee_id UUID REFERENCES users(id) ON DELETE RESTRICT NULL,
+    to_employee_id UUID REFERENCES users(id) ON DELETE RESTRICT NOT NULL,
+    status TRANSFER_STATUS DEFAULT 'PENDING' NOT NULL,
+    approved_by_id UUID REFERENCES users(id) ON DELETE SET NULL NULL,
+    remarks TEXT NULL,
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    action_date TIMESTAMP NULL,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
