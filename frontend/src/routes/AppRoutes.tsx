@@ -16,7 +16,7 @@ import { AssetsPage } from '../pages/assets/AssetsPage';
 import { CreateAssetPage } from '../pages/assets/CreateAssetPage';
 import { EditAssetPage } from '../pages/assets/EditAssetPage';
 import { AssetDetails } from '../pages/assets/AssetDetails';
-import { AllocationPage } from '../pages/allocation/AllocationPage';
+import { AllocationsPage } from '../pages/allocations/AllocationsPage';
 import { BookingsPage } from '../pages/bookings/BookingsPage';
 import { MaintenancePage } from '../pages/maintenance/MaintenancePage';
 import { AuditsPage } from '../pages/audits/AuditsPage';
@@ -53,7 +53,7 @@ export const AppRoutes: React.FC = () => {
           <Route path={ROUTES.ASSET_CREATE} element={<CreateAssetPage />} />
           <Route path={ROUTES.ASSET_EDIT} element={<EditAssetPage />} />
           <Route path="/assets/:id" element={<AssetDetails />} />
-          <Route path={ROUTES.ALLOCATION} element={<AllocationPage />} />
+          <Route path={ROUTES.ALLOCATION} element={<AllocationsPage />} />
           <Route path={ROUTES.BOOKINGS} element={<BookingsPage />} />
           <Route path={ROUTES.MAINTENANCE} element={<MaintenancePage />} />
           <Route path={ROUTES.AUDITS} element={<AuditsPage />} />
