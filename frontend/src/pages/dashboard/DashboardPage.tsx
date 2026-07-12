@@ -1,203 +1,261 @@
 import React, { useState } from 'react';
-import { PageHeader } from '../../components/common/PageHeader';
-import { Card } from '../../components/common/Card';
-import { Button } from '../../components/common/Button';
-import { Modal } from '../../components/common/Modal';
-import { Badge } from '../../components/common/Badge';
 import { 
-  Package, 
-  CalendarDays, 
-  Wrench, 
-  CheckCircle, 
-  Plus, 
-  TrendingUp, 
-  ExternalLink 
+  Layers, CheckCircle, UserCheck, Wrench, Bookmark, Archive, Trash2, Users, 
+  Building2, ArrowLeftRight, AlertCircle, BellRing 
 } from 'lucide-react';
 
+import { 
+  useDashboardOverview, 
+  useDashboardCharts, 
+  useDashboardActivities, 
+  useDashboardBookings, 
+  useDashboardMaintenance, 
+  useDashboardNotifications 
+} from '../../hooks/useDashboard';
+
+import DashboardHeader from '../../components/dashboard/DashboardHeader';
+import StatCard from '../../components/dashboard/StatCards/StatCard';
+import QuickActions from '../../components/dashboard/QuickActions/QuickActions';
+import AssetStatusChart from '../../components/dashboard/Charts/AssetStatusChart';
+import DepartmentChart from '../../components/dashboard/Charts/DepartmentChart';
+import CategoryChart from '../../components/dashboard/Charts/CategoryChart';
+import MaintenanceChart from '../../components/dashboard/Charts/MaintenanceChart';
+import RecentActivities from '../../components/dashboard/Tables/RecentActivities';
+import BookingsTable from '../../components/dashboard/Tables/BookingsTable';
+import MaintenanceOverview from '../../components/dashboard/MaintenanceOverview';
+import NotificationsPanel from '../../components/dashboard/Notifications/NotificationsPanel';
+import DashboardSkeleton from '../../components/dashboard/Skeletons/DashboardSkeleton';
+
+const SectionError: React.FC<{ message: string; onRetry: () => void }> = ({ message, onRetry }) => (
+  <div className="flex flex-col items-center justify-center p-6 bg-error/5 border border-error/20 rounded-2xl h-full text-center min-h-[150px]">
+    <p className="text-xs font-semibold text-error mb-2">{message}</p>
+    <button onClick={onRetry} className="btn btn-xs btn-error btn-outline rounded-lg">
+      Retry
+    </button>
+  </div>
+);
+
 export const DashboardPage: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [range, setRange] = useState('30d');
+  const [activitiesPage, setActivitiesPage] = useState(1);
+  const [bookingsPage, setBookingsPage] = useState(1);
 
-  // Mock data for the dashboard stats
-  const stats = [
-    {
-      title: 'Total Assets',
-      value: '1,248',
-      change: '+4.5% from last month',
-      isPositive: true,
-      icon: <Package className="text-primary" size={24} />,
-      bgIcon: 'bg-primary/10',
-    },
-    {
-      title: 'Active Bookings',
-      value: '84',
-      change: '+12% from last week',
-      isPositive: true,
-      icon: <CalendarDays className="text-secondary" size={24} />,
-      bgIcon: 'bg-secondary/10',
-    },
-    {
-      title: 'Pending Maintenance',
-      value: '12',
-      change: '-2 since yesterday',
-      isPositive: true, // fewer maintenance items is positive
-      icon: <Wrench className="text-warning" size={24} />,
-      bgIcon: 'bg-warning/10',
-    },
-    {
-      title: 'Audit Score',
-      value: '98.2%',
-      change: 'Compliant',
-      isPositive: true,
-      icon: <CheckCircle className="text-success" size={24} />,
-      bgIcon: 'bg-success/10',
-    },
-  ];
+  // Hook integrations
+  const overview = useDashboardOverview();
+  const charts = useDashboardCharts();
+  const activities = useDashboardActivities(activitiesPage, 10, range);
+  const bookings = useDashboardBookings(bookingsPage, 5);
+  const maintenance = useDashboardMaintenance();
+  const notifications = useDashboardNotifications(1, 5);
 
-  // Mock data for recent activities
-  const recentAssets = [
-    { id: 'AST-1049', name: 'Dell XPS 15 Laptop', category: 'Hardware', status: 'Allocated', user: 'Jane Cooper' },
-    { id: 'AST-1050', name: 'iPad Pro 12.9"', category: 'Hardware', status: 'Available', user: '—' },
-    { id: 'AST-1051', name: 'Conference Room B', category: 'Resource', status: 'Reserved', user: 'Marketing Team' },
-    { id: 'AST-1052', name: 'Acoustic Sound Pod', category: 'Furniture', status: 'In Repair', user: '—' },
-  ];
+  const handleRefreshAll = () => {
+    overview.refresh();
+    charts.refresh();
+    activities.refresh();
+    bookings.refresh();
+    maintenance.refresh();
+    notifications.refresh();
+  };
+
+  const isPageLoading = 
+    overview.isLoading && 
+    charts.isLoading && 
+    activities.isLoading && 
+    bookings.isLoading && 
+    maintenance.isLoading && 
+    notifications.isLoading;
+
+  if (isPageLoading) {
+    return (
+      <div className="space-y-6">
+        <DashboardHeader 
+          range={range} 
+          onRangeChange={setRange} 
+          onRefresh={handleRefreshAll} 
+          isRefreshing={true} 
+        />
+        <DashboardSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Dashboard" 
-        subtitle="System summary and resource activity overview."
-        breadcrumbs={[
-          { label: 'Home', path: '/dashboard' },
-          { label: 'Dashboard' }
-        ]}
-        action={
-          <Button 
-            variant="primary" 
-            size="sm" 
-            className="shadow-md shadow-primary/15"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <Plus size={16} className="mr-1" />
-            Quick Action
-          </Button>
-        }
+      <DashboardHeader 
+        range={range} 
+        onRangeChange={(newRange) => {
+          setRange(newRange);
+          setActivitiesPage(1); // Reset page on filter shift
+        }} 
+        onRefresh={handleRefreshAll} 
+        isRefreshing={overview.isLoading || charts.isLoading} 
       />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, idx) => (
-          <Card key={idx} className="hover:translate-y-[-2px] transition-transform duration-200">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <span className="text-xs md:text-sm font-semibold text-base-content/50 uppercase tracking-wider">{stat.title}</span>
-                <div className="text-2xl md:text-3xl font-extrabold text-base-content">{stat.value}</div>
-              </div>
-              <div className={`p-3 rounded-xl ${stat.bgIcon}`}>
-                {stat.icon}
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 mt-4 text-xs font-semibold text-base-content/65">
-              <TrendingUp size={14} className="text-success shrink-0" />
-              <span>{stat.change}</span>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Content Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Table list card */}
-        <Card 
-          title="Recent Resource Allocations" 
-          extra={
-            <button className="text-xs text-primary font-bold flex items-center hover:underline gap-1">
-              View All <ExternalLink size={12} />
-            </button>
-          }
-          className="lg:col-span-2"
-        >
-          <div className="overflow-x-auto">
-            <table className="table w-full text-sm">
-              <thead>
-                <tr className="border-b border-base-300 text-base-content/50 font-bold">
-                  <th>Asset ID</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Assignee</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentAssets.map((asset) => (
-                  <tr key={asset.id} className="border-b border-base-300 hover:bg-base-200/30 transition-colors">
-                    <td className="font-semibold text-primary">{asset.id}</td>
-                    <td className="font-medium">{asset.name}</td>
-                    <td className="text-base-content/60">{asset.category}</td>
-                    <td>
-                      <Badge 
-                        variant={
-                          asset.status === 'Available' ? 'success' : 
-                          asset.status === 'Allocated' ? 'info' : 
-                          asset.status === 'Reserved' ? 'primary' : 'warning'
-                        }
-                        size="sm"
-                      >
-                        {asset.status}
-                      </Badge>
-                    </td>
-                    <td className="text-base-content/75 font-medium">{asset.user}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* Info card */}
-        <Card title="Quick Resources">
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-base-200/50 border border-base-300">
-              <h4 className="font-bold text-sm text-base-content mb-1">Documentation & Guide</h4>
-              <p className="text-xs text-base-content/60 leading-relaxed mb-3">
-                Review setup patterns and directory definitions in the documentation to start configuring resources.
-              </p>
-              <Button variant="outline" size="xs">Read Manual</Button>
-            </div>
-            
-            <div className="p-4 rounded-xl bg-base-200/50 border border-base-300">
-              <h4 className="font-bold text-sm text-base-content mb-1">System Health</h4>
-              <p className="text-xs text-base-content/60 leading-relaxed mb-2">
-                All cloud servers running normally.
-              </p>
-              <div className="flex items-center gap-1.5 text-xs text-success font-semibold">
-                <span className="w-2.5 h-2.5 rounded-full bg-success animate-ping"></span>
-                <span>Active Connection</span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Interactive Modal demonstration */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Quick Action Panel"
-        footer={
-          <>
-            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button variant="primary" size="sm" onClick={() => setIsModalOpen(false)}>Submit Action</Button>
-          </>
-        }
-      >
-        <p className="text-sm text-base-content/70 leading-relaxed">
-          This modal is a demonstration of the reusable, production-ready dialog component. It binds focus, blocks scroll parameters, handles backdrop blur, and provides responsive buttons.
-        </p>
-        <div className="mt-4 p-4 rounded-lg bg-base-200 border border-base-300">
-          <span className="text-xs font-semibold text-base-content/50 uppercase block mb-1">Environment status</span>
-          <span className="text-sm font-bold text-primary font-mono">{import.meta.env.VITE_API_BASE_URL}</span>
+      {/* Overview Cards Block */}
+      {overview.error ? (
+        <SectionError message={overview.error} onRetry={overview.refresh} />
+      ) : overview.isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-base-100/30 rounded-2xl p-5 h-24 border border-base-300/40"></div>
+          ))}
         </div>
-      </Modal>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard 
+            title="Total Assets" 
+            count={overview.data?.totalAssets ?? 0} 
+            icon={<Layers size={20} />} 
+            colorClass="primary" 
+          />
+          <StatCard 
+            title="Available" 
+            count={overview.data?.availableAssets ?? 0} 
+            icon={<CheckCircle size={20} />} 
+            colorClass="success" 
+          />
+          <StatCard 
+            title="Allocated" 
+            count={overview.data?.allocatedAssets ?? 0} 
+            icon={<UserCheck size={20} />} 
+            colorClass="info" 
+          />
+          <StatCard 
+            title="Under Maintenance" 
+            count={overview.data?.underMaintenanceAssets ?? 0} 
+            icon={<Wrench size={20} />} 
+            colorClass="warning" 
+          />
+          <StatCard 
+            title="Reserved" 
+            count={overview.data?.reservedAssets ?? 0} 
+            icon={<Bookmark size={20} />} 
+            colorClass="secondary" 
+          />
+          <StatCard 
+            title="Retired" 
+            count={overview.data?.retiredAssets ?? 0} 
+            icon={<Archive size={20} />} 
+            colorClass="accent" 
+          />
+          <StatCard 
+            title="Disposed" 
+            count={overview.data?.disposedAssets ?? 0} 
+            icon={<Trash2 size={20} />} 
+            colorClass="error" 
+          />
+          <StatCard 
+            title="Total Employees" 
+            count={overview.data?.totalEmployees ?? 0} 
+            icon={<Users size={20} />} 
+            colorClass="primary" 
+          />
+          <StatCard 
+            title="Departments" 
+            count={overview.data?.totalDepartments ?? 0} 
+            icon={<Building2 size={20} />} 
+            colorClass="secondary" 
+          />
+          <StatCard 
+            title="Pending Transfers" 
+            count={overview.data?.pendingTransfers ?? 0} 
+            icon={<ArrowLeftRight size={20} />} 
+            colorClass="accent" 
+          />
+          <StatCard 
+            title="Pending Maintenance" 
+            count={overview.data?.pendingMaintenance ?? 0} 
+            icon={<AlertCircle size={20} />} 
+            colorClass="warning" 
+          />
+          <StatCard 
+            title="Unread Alerts" 
+            count={overview.data?.unreadNotifications ?? 0} 
+            icon={<BellRing size={20} />} 
+            colorClass="error" 
+          />
+        </div>
+      )}
+
+      {/* Navigational Quick Actions */}
+      <QuickActions />
+
+      {/* Recharts Analytics Grid */}
+      {charts.error ? (
+        <SectionError message={charts.error} onRetry={charts.refresh} />
+      ) : charts.isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-base-100/30 rounded-2xl h-[320px] border border-base-300/40"></div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1">
+            <AssetStatusChart data={charts.data?.assetStatus ?? []} />
+          </div>
+          <div className="lg:col-span-1">
+            <DepartmentChart data={charts.data?.departmentAssets ?? []} />
+          </div>
+          <div className="lg:col-span-1">
+            <CategoryChart data={charts.data?.categoryAssets ?? []} />
+          </div>
+          <div className="lg:col-span-1">
+            <MaintenanceChart data={charts.data?.maintenanceTrend ?? []} />
+          </div>
+        </div>
+      )}
+
+      {/* Activity Streams & Schedulers Table Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {activities.error ? (
+            <SectionError message={activities.error} onRetry={activities.refresh} />
+          ) : (
+            <RecentActivities 
+              activities={activities.data ?? []} 
+              page={activitiesPage} 
+              onPageChange={setActivitiesPage} 
+              isLoading={activities.isLoading} 
+            />
+          )}
+        </div>
+        <div className="lg:col-span-1">
+          {notifications.error ? (
+            <SectionError message={notifications.error} onRetry={notifications.refresh} />
+          ) : (
+            <NotificationsPanel 
+              notifications={notifications.data?.latest ?? []} 
+              count={notifications.data?.count ?? 0} 
+              onRefresh={notifications.refresh} 
+              isLoading={notifications.isLoading} 
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {bookings.error ? (
+            <SectionError message={bookings.error} onRetry={bookings.refresh} />
+          ) : (
+            <BookingsTable 
+              bookings={bookings.data ?? []} 
+              page={bookingsPage} 
+              onPageChange={setBookingsPage} 
+              isLoading={bookings.isLoading} 
+            />
+          )}
+        </div>
+        <div className="lg:col-span-1">
+          {maintenance.error ? (
+            <SectionError message={maintenance.error} onRetry={maintenance.refresh} />
+          ) : (
+            <MaintenanceOverview summary={maintenance.data} />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
+export default DashboardPage;
