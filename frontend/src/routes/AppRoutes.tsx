@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { api } from '../services/api';
+import { useSystem } from '../contexts/SystemContext';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 
@@ -49,23 +49,10 @@ import { ForbiddenPage } from '../pages/errors/ForbiddenPage';
 import { ROUTES } from '../constants/routes';
 
 export const AppRoutes: React.FC = () => {
-  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+  const { isInitialized } = useSystem();
 
-  useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const response = await api.get('/system/setup-status');
-        if (response.data?.success) {
-          setIsInitialized(response.data.data.initialized);
-        }
-      } catch (err) {
-        console.error('Failed to retrieve setup status:', err);
-        setIsInitialized(true); // fallback to prevent lockout
-      }
-    };
-    checkStatus();
-  }, []);
-
+  // Phase 1: Setup status is still being fetched — show loading screen.
+  // Neither auth guards nor route redirects should run yet.
   if (isInitialized === null) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
@@ -74,6 +61,7 @@ export const AppRoutes: React.FC = () => {
     );
   }
 
+  // Phase 2: System is NOT initialized — show only setup wizard, block everything else.
   if (isInitialized === false) {
     return (
       <Routes>
@@ -83,15 +71,16 @@ export const AppRoutes: React.FC = () => {
     );
   }
 
+  // Phase 3: System IS initialized — normal auth-gated routing.
   return (
     <Routes>
       {/* Root redirect to Dashboard */}
       <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
-      {/* Setup route redirect to dashboard/login when initialized */}
+      {/* /setup is disabled once system is initialized */}
       <Route path="/setup" element={<Navigate to={ROUTES.LOGIN} replace />} />
 
-      {/* Public Routes */}
+      {/* Public Routes (unauthenticated only) */}
       <Route element={<PublicRoute />}>
         <Route element={<AuthLayout />}>
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
@@ -100,7 +89,7 @@ export const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Protected Routes */}
+      {/* Protected Routes (authenticated only) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />

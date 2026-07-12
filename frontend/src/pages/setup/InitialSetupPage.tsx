@@ -5,12 +5,14 @@ import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSystem } from '../../contexts/SystemContext';
 import { api } from '../../services/api';
 import toast from 'react-hot-toast';
 
 export const InitialSetupPage: React.FC = () => {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
+  const { setIsInitialized } = useSystem();
   
   const [organizationName, setOrganizationName] = useState('');
   const [name, setName] = useState('');
@@ -87,14 +89,10 @@ export const InitialSetupPage: React.FC = () => {
       if (response.data?.success && response.data?.data) {
         const { token } = response.data.data;
         localStorage.setItem('token', token);
-        await refreshUser(); // Immediately sync state
+        await refreshUser(); // Immediately sync auth state
+        setIsInitialized(true); // Unlock normal routing — no reload needed
         toast.success('System initialized successfully. Welcome to AssetFlow ERP.');
         navigate('/dashboard');
-        
-        // Trigger a force reload of system initialized status state
-        setTimeout(() => {
-          window.location.reload();
-        }, 300);
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || 'System initialization failed.';
