@@ -3,6 +3,7 @@ import authRoutes from '../../modules/auth/auth.routes.js';
 import dashboardRoutes from '../../modules/dashboard/dashboard.routes.js';
 import assetRouter, { maintenanceRouter } from '../../modules/assets/assets.routes.js';
 import allocationRoutes from '../../modules/allocation/allocation.routes.js';
+import maintenanceRoutes from '../../modules/maintenance/maintenance.routes.js';
 
 const router = Router();
 
@@ -10,7 +11,8 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/assets', assetRouter);
-router.use('/maintenance', maintenanceRouter);
+router.use('/maintenance', maintenanceRoutes);
 router.use('/allocations', allocationRoutes);
 
 export default router;
+
