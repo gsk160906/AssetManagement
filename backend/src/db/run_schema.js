@@ -12,6 +12,7 @@ const sqlFiles = [
   'schema/tables/users.sql',
   'schema/tables/asset_categories.sql',
   'schema/tables/assets.sql',
+  'schema/tables/asset_documents.sql',
   'schema/tables/asset_allocations.sql',
   'schema/tables/transfer_requests.sql',
   'schema/tables/resource_bookings.sql',

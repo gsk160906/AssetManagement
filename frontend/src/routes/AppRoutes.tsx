@@ -13,6 +13,9 @@ import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { OrganizationPage } from '../pages/organization/OrganizationPage';
 import { AssetsPage } from '../pages/assets/AssetsPage';
+import { CreateAssetPage } from '../pages/assets/CreateAssetPage';
+import { EditAssetPage } from '../pages/assets/EditAssetPage';
+import { AssetDetails } from '../pages/assets/AssetDetails';
 import { AllocationPage } from '../pages/allocation/AllocationPage';
 import { BookingsPage } from '../pages/bookings/BookingsPage';
 import { MaintenancePage } from '../pages/maintenance/MaintenancePage';
@@ -47,6 +50,9 @@ export const AppRoutes: React.FC = () => {
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
           <Route path={ROUTES.ORGANIZATION} element={<OrganizationPage />} />
           <Route path={ROUTES.ASSETS} element={<AssetsPage />} />
+          <Route path={ROUTES.ASSET_CREATE} element={<CreateAssetPage />} />
+          <Route path={ROUTES.ASSET_EDIT} element={<EditAssetPage />} />
+          <Route path="/assets/:id" element={<AssetDetails />} />
           <Route path={ROUTES.ALLOCATION} element={<AllocationPage />} />
           <Route path={ROUTES.BOOKINGS} element={<BookingsPage />} />
           <Route path={ROUTES.MAINTENANCE} element={<MaintenancePage />} />
