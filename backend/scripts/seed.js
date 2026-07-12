@@ -12,6 +12,7 @@ import { seedBookings } from './seedBookings.js';
 import { seedMaintenance } from './seedMaintenance.js';
 import { seedNotifications } from './seedNotifications.js';
 import { seedActivityLogs } from './seedActivityLogs.js';
+import { seedAudits } from './seedAudits.js';
 
 const main = async () => {
   console.log('🚀 Starting Database Seed orchestration...');
@@ -29,10 +30,10 @@ const main = async () => {
 
     // 1. Wipe existing data in correct reverse foreign key dependency order
     await client.query('UPDATE departments SET manager_id = NULL');
-    await client.query('DELETE FROM activity_logs');
+    await client.query('DELETE FROM audit_logs');
     await client.query('DELETE FROM notifications');
     await client.query('DELETE FROM audit_items');
-    await client.query('DELETE FROM audit_cycles');
+    await client.query('DELETE FROM audits');
     await client.query('DELETE FROM maintenance_requests');
     await client.query('DELETE FROM resource_bookings');
     await client.query('DELETE FROM transfer_requests');
@@ -70,6 +71,9 @@ const main = async () => {
 
     await seedActivityLogs(client);
     console.log('✔ Seeded Activity Logs');
+
+    await seedAudits(client);
+    console.log('✔ Seeded Audits');
 
     // Commit changes
     await client.query('COMMIT');
