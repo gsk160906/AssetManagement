@@ -6,7 +6,7 @@ export const QuickActions: React.FC = () => {
   const actions = [
     { label: 'View Assets', icon: <Monitor size={18} />, path: '/assets', color: 'primary' },
     { label: 'Book Resource', icon: <CalendarDays size={18} />, path: '/bookings', color: 'secondary' },
-    { label: 'Transfer Asset', icon: <ArrowLeftRight size={18} />, path: '/transfers', color: 'accent' },
+    { label: 'Transfer Asset', icon: <ArrowLeftRight size={18} />, path: '/allocations', color: 'accent' },
     { label: 'Raise Maintenance', icon: <Wrench size={18} />, path: '/maintenance', color: 'error' },
   ];
 

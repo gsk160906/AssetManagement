@@ -8,7 +8,7 @@ export const ROUTES = {
   ASSET_CREATE: '/assets/create',
   ASSET_EDIT: '/assets/edit/:id',
   ASSET_DETAILS: '/assets/:id',
-  ALLOCATION: '/allocation',
+  ALLOCATION: '/allocations',
   BOOKINGS: '/bookings',
   MAINTENANCE: '/maintenance',
   AUDITS: '/audits',
