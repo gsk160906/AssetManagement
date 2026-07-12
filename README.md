@@ -184,6 +184,19 @@ https://your-render-backend.onrender.com
 
 ---
 
+
+
+Deployed Link : https://assetflow-git-main-gsk2.vercel.app/login
+
+| Field | Value |
+|-------|-------|
+| **Email** | admin@assetflow.com |
+| **Password** | Admin@1234 |
+| **Name** | System Admin |
+| **Role** | ADMIN |
+| **Employee Code** | EMP-000 |
+
+
 # License
 
 This project was developed for educational and demonstration purposes.
