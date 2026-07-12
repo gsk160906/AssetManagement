@@ -145,36 +145,67 @@ export const saveNotification = async (data) => {
   return rows[0];
 };
 
+const mapPreferenceRow = (row) => {
+  if (!row) return null;
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    maintenance_enabled: row.maintenance_notifications,
+    booking_enabled: row.booking_notifications,
+    audit_enabled: row.audit_notifications,
+    report_enabled: row.report_notifications,
+    asset_enabled: row.asset_notifications,
+    system_enabled: row.system_notifications,
+    email_enabled: row.email_notifications,
+    browser_enabled: row.browser_notifications,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+};
+
+const mapPreferenceInput = (data) => {
+  const mapped = {};
+  if (data.maintenance_enabled !== undefined) mapped.maintenance_notifications = data.maintenance_enabled;
+  if (data.booking_enabled !== undefined) mapped.booking_notifications = data.booking_enabled;
+  if (data.audit_enabled !== undefined) mapped.audit_notifications = data.audit_enabled;
+  if (data.report_enabled !== undefined) mapped.report_notifications = data.report_enabled;
+  if (data.asset_enabled !== undefined) mapped.asset_notifications = data.asset_enabled;
+  if (data.system_enabled !== undefined) mapped.system_notifications = data.system_enabled;
+  if (data.email_enabled !== undefined) mapped.email_notifications = data.email_enabled;
+  if (data.browser_enabled !== undefined) mapped.browser_notifications = data.browser_enabled;
+  return mapped;
+};
+
 export const createPreference = async (userId) => {
   const { rows } = await pool.query(
-    `INSERT INTO notification_preferences (user_id)
+    `INSERT INTO user_preferences (user_id)
      VALUES ($1)
      ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
      RETURNING *`,
     [userId]
   );
-  return rows[0];
+  return mapPreferenceRow(rows[0]);
 };
 
 export const getPreference = async (userId) => {
   let { rows } = await pool.query(
-    'SELECT * FROM notification_preferences WHERE user_id = $1',
+    'SELECT * FROM user_preferences WHERE user_id = $1',
     [userId]
   );
   
   if (rows.length === 0) {
-    // Dynamically initialize preference row if missing
-    rows = [await createPreference(userId)];
+    return createPreference(userId);
   }
   
-  return rows[0];
+  return mapPreferenceRow(rows[0]);
 };
 
 export const updatePreference = async (userId, data) => {
+  const mappedData = mapPreferenceInput(data);
   const fields = [];
   const values = [];
 
-  Object.entries(data).forEach(([key, val]) => {
+  Object.entries(mappedData).forEach(([key, val]) => {
     fields.push(`${key} = $${fields.length + 1}`);
     values.push(val);
   });
@@ -183,13 +214,13 @@ export const updatePreference = async (userId, data) => {
 
   values.push(userId);
   const query = `
-    UPDATE notification_preferences 
+    UPDATE user_preferences 
     SET ${fields.join(', ')}, updated_at = NOW() 
     WHERE user_id = $${values.length} 
     RETURNING *`;
     
   const { rows } = await pool.query(query, values);
-  return rows[0];
+  return mapPreferenceRow(rows[0]);
 };
 
 export const insertActivityLog = async (userId, action, entityId, metadata) => {

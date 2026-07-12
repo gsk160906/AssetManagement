@@ -6,7 +6,11 @@ import pool from '../../db/index.js';
 
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const result = await authService.login(email, password);
+  const clientInfo = {
+    ipAddress: req.ip || req.headers['x-forwarded-for'] || '127.0.0.1',
+    userAgent: req.headers['user-agent'] || 'Unknown'
+  };
+  const result = await authService.login(email, password, clientInfo);
   
   // Return standard success payload
   return successResponse(

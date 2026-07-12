@@ -9,6 +9,7 @@ import auditRoutes from '../../modules/audits/audits.routes.js';
 import reportsRoutes from '../../modules/reports/reports.routes.js';
 import departmentRoutes from '../../modules/departments/department.routes.js';
 import notificationsRoutes from '../../modules/notifications/notifications.routes.js';
+import profileRoutes from '../../modules/profile/profile.routes.js';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use('/audits', auditRoutes);
 router.use('/reports', reportsRoutes);
 router.use('/departments', departmentRoutes);
 router.use('/notifications', notificationsRoutes);
+router.use('/profile', profileRoutes);
 
 export default router;
 

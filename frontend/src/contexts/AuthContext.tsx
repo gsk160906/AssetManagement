@@ -8,6 +8,7 @@ export interface User {
   role: 'ADMIN' | 'ASSET_MANAGER' | 'DEPARTMENT_HEAD' | 'EMPLOYEE';
   employee_code: string;
   department_id: string | null;
+  profile_image_url?: string | null;
 }
 
 interface AuthContextProps {

@@ -56,7 +56,7 @@ export const LoginPage: React.FC = () => {
 
   const handleDemoFill = () => {
     setValue('email', 'admin@assetflow.com');
-    setValue('password', 'password123');
+    setValue('password', 'Password123!');
   };
 
   return (

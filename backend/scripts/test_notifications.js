@@ -5,7 +5,7 @@ async function test() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: 'admin@assetflow.com',
-        password: 'Password123'
+        password: 'Password123!'
       })
     });
     const loginData = await loginRes.json();

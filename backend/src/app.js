@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static Files serving exports
 app.use('/exports', express.static('public/exports'));
+app.use('/uploads', express.static('public/uploads'));
 
 // Mount all API routes
 app.use(router);

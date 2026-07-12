@@ -20,8 +20,15 @@ export const seedUsers = async (client, passwordHash) => {
 
   for (const user of users) {
     await client.query(
-      'INSERT INTO users (id, employee_code, name, email, password_hash, department_id, role, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      user
+      'INSERT INTO users (id, employee_code, name, email, password_hash, department_id, role, status, first_name, last_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [
+        user[0], user[1], user[2], user[3], user[4], user[5], user[6], user[7],
+        user[2].split(' ')[0], user[2].split(' ')[1] || 'User'
+      ]
+    );
+    await client.query(
+      'INSERT INTO user_preferences (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING',
+      [user[0]]
     );
   }
 

@@ -23,7 +23,7 @@ const main = async () => {
   try {
     // Generate one dynamic bcrypt password hash for all users
     console.log('Generating dynamic password hash...');
-    const passwordHash = await bcrypt.hash('Password123', 10);
+    const passwordHash = await bcrypt.hash('Password123!', 10);
 
     // Start database transaction
     await client.query('BEGIN');
@@ -32,7 +32,8 @@ const main = async () => {
     await client.query('UPDATE departments SET manager_id = NULL');
     await client.query('DELETE FROM audit_logs');
     await client.query('DELETE FROM notifications');
-    await client.query('DELETE FROM notification_preferences');
+    await client.query('DELETE FROM user_sessions');
+    await client.query('DELETE FROM user_preferences');
     await client.query('DELETE FROM audit_items');
     await client.query('DELETE FROM audits');
     await client.query('DELETE FROM report_history');

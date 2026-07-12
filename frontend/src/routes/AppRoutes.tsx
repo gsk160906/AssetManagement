@@ -35,6 +35,10 @@ import { ExpenseReport } from '../pages/reports/ExpenseReport';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
+import { EditProfilePage } from '../pages/profile/EditProfilePage';
+import { SecurityPage } from '../pages/profile/SecurityPage';
+import { PreferencesPage } from '../pages/profile/PreferencesPage';
+import { SessionsPage } from '../pages/profile/SessionsPage';
 import { NotificationPreferences } from '../pages/notifications/NotificationPreferences';
 
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
@@ -85,6 +89,10 @@ export const AppRoutes: React.FC = () => {
           <Route path="/settings/notifications" element={<NotificationPreferences />} />
           <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+          <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/profile/security" element={<SecurityPage />} />
+          <Route path="/profile/preferences" element={<PreferencesPage />} />
+          <Route path="/profile/sessions" element={<SessionsPage />} />
         </Route>
       </Route>
 

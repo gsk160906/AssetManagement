@@ -10,11 +10,14 @@ import {
   LogOut, 
   User, 
   Settings, 
-  Menu 
+  Menu,
+  Shield,
+  HardDrive 
 } from 'lucide-react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { NotificationBell } from '../notifications/NotificationBell';
+import { ProfileAvatar } from '../profile/ProfileAvatar';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -86,12 +89,7 @@ export const Navbar: React.FC = () => {
         {/* User Dropdown */}
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost btn-circle avatar online">
-            <div className="w-9 h-9 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
-              <img 
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
-                alt="User Profile" 
-              />
-            </div>
+            <ProfileAvatar url={user?.profile_image_url} name={user?.name || 'User'} size="sm" />
           </label>
           <ul tabIndex={0} className="menu dropdown-content mt-3 z-40 p-2 shadow-xl border border-base-300 bg-base-100 rounded-xl w-56 space-y-1">
             <div className="px-3 py-2 border-b border-base-300">
@@ -99,17 +97,37 @@ export const Navbar: React.FC = () => {
               <p className="text-xs text-base-content/50 truncate mt-0.5">{displayEmail}</p>
             </div>
             <li>
-              <Link to={ROUTES.PROFILE} className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
-                <User size={15} />
+              <Link to="/profile" className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
+                <User size={15} className="text-primary" />
                 My Profile
               </Link>
             </li>
             <li>
-              <Link to={ROUTES.SETTINGS} className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
-                <Settings size={15} />
-                System Settings
+              <Link to="/profile/preferences" className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
+                <Settings size={15} className="text-secondary" />
+                Preferences
               </Link>
             </li>
+            <li>
+              <Link to="/profile/security" className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
+                <Shield size={15} className="text-error" />
+                Security
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile/sessions" className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
+                <HardDrive size={15} className="text-info" />
+                Active Sessions
+              </Link>
+            </li>
+            {user?.role === 'ADMIN' && (
+              <li>
+                <Link to={ROUTES.SETTINGS} className="flex items-center gap-2 py-2 text-sm text-base-content/85 hover:text-base-content">
+                  <Settings size={15} />
+                  System Settings
+                </Link>
+              </li>
+            )}
             <li>
               <button 
                 onClick={handleLogout} 
