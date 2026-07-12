@@ -1,0 +1,175 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import pool from '../src/db/index.js';
+
+const main = async () => {
+  console.log('🧪 Starting User Management Module E2E Test...');
+  
+  const adminEmail = 'admin@assetflow.com';
+  const adminPass = 'Password123!';
+  const testEmpCode = 'EMP-TEST-999';
+  const testEmpEmail = 'test.employee@assetflow.com';
+  const testEmpPass = 'SecureEmpPass@123!';
+  
+  let adminToken = '';
+  let testUserId = '';
+
+  try {
+    // 1. Login as Admin
+    console.log('\n--- 1. Login as Admin ---');
+    const loginRes = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: adminEmail, password: adminPass })
+    });
+    const loginData = await loginRes.json();
+    if (!loginData.success) {
+      throw new Error(`Admin login failed: ${loginData.message}`);
+    }
+    adminToken = loginData.data.token;
+    console.log('✓ Admin login successful');
+
+    // 2. Fetch all users
+    console.log('\n--- 2. List Users (Paginated) ---');
+    const listRes = await fetch('http://127.0.0.1:5000/api/v1/users?page=1&limit=5', {
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    const listData = await listRes.json();
+    if (!listData.success) {
+      throw new Error(`List users failed: ${listData.message}`);
+    }
+    console.log(`✓ Retieved ${listData.data.users.length} users. Total: ${listData.data.pagination.total}`);
+
+    // 3. Create a new Employee
+    console.log('\n--- 3. Create New User (Employee) ---');
+    const createRes = await fetch('http://127.0.0.1:5000/api/v1/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        employeeCode: testEmpCode,
+        name: 'Test Employee',
+        email: testEmpEmail,
+        password: testEmpPass,
+        role: 'EMPLOYEE',
+        departmentId: null
+      })
+    });
+    const createData = await createRes.json();
+    if (!createData.success) {
+      throw new Error(`Create user failed: ${createData.message}`);
+    }
+    testUserId = createData.data.user.id;
+    console.log('✓ Employee user created successfully, ID:', testUserId);
+
+    // Verify preferences were created
+    const prefCheck = await pool.query('SELECT 1 FROM user_preferences WHERE user_id = $1', [testUserId]);
+    if (prefCheck.rows.length === 0) {
+      throw new Error('User preferences were not created automatically.');
+    }
+    console.log('✓ User preferences created in DB');
+
+    // 4. Attempt to create conflict email (Expected: 400 Bad Request)
+    console.log('\n--- 4. Conflict creation check ---');
+    const conflictRes = await fetch('http://127.0.0.1:5000/api/v1/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        employeeCode: 'EMP-CONFLICT',
+        name: 'Conflict User',
+        email: testEmpEmail,
+        password: testEmpPass,
+        role: 'EMPLOYEE'
+      })
+    });
+    console.log('Status:', conflictRes.status);
+    const conflictData = await conflictRes.json();
+    console.log('Response:', conflictData);
+    if (conflictRes.status !== 400 || conflictData.success !== false) {
+      throw new Error('Expected conflict block (400) to occur, but request succeeded or returned wrong error.');
+    }
+    console.log('✓ Conflict correctly prevented');
+
+    // 5. Update user details
+    console.log('\n--- 5. Update User ---');
+    const updateRes = await fetch(`http://127.0.0.1:5000/api/v1/users/${testUserId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        name: 'Updated Employee Name',
+        email: testEmpEmail,
+        role: 'EMPLOYEE',
+        departmentId: null,
+        status: 'ACTIVE'
+      })
+    });
+    const updateData = await updateRes.json();
+    if (!updateData.success) {
+      throw new Error(`Update failed: ${updateData.message}`);
+    }
+    console.log('✓ User details updated to:', updateData.data.user.name);
+
+    // Try logging in with the new user credentials
+    console.log('\n--- 6. Log in with new employee credentials ---');
+    const empLoginRes = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testEmpEmail, password: testEmpPass })
+    });
+    const empLoginData = await empLoginRes.json();
+    if (!empLoginData.success) {
+      throw new Error(`New employee login failed: ${empLoginData.message}`);
+    }
+    console.log('✓ Employee logged in successfully using credentials generated by Admin');
+
+    // 7. Delete User (Soft Delete)
+    console.log('\n--- 7. Soft Delete User ---');
+    const deleteRes = await fetch(`http://127.0.0.1:5000/api/v1/users/${testUserId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    const deleteData = await deleteRes.json();
+    if (!deleteData.success) {
+      throw new Error(`Delete failed: ${deleteData.message}`);
+    }
+    console.log('✓ User soft-deleted successfully');
+
+    // Verify login is now blocked
+    console.log('\n--- 8. Attempt login for soft-deleted user ---');
+    const failLoginRes = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testEmpEmail, password: testEmpPass })
+    });
+    const failLoginData = await failLoginRes.json();
+    console.log('Response:', failLoginData);
+    if (failLoginData.success) {
+      throw new Error('Deleted user was able to log in.');
+    }
+    console.log('✓ Login blocked successfully for deleted employee');
+
+    console.log('\n🎉 ALL USER MANAGEMENT TESTS COMPLETED SUCCESSFULLY!');
+  } catch (error) {
+    console.error('❌ Test failed:', error.message);
+    process.exit(1);
+  } finally {
+    // Delete the test user permanently in DB so E2E test script is clean on repeats
+    if (testUserId) {
+      await pool.query('DELETE FROM user_preferences WHERE user_id = $1', [testUserId]);
+      await pool.query('DELETE FROM users WHERE id = $1', [testUserId]);
+      console.log('Cleanup: Test user removed from database.');
+    }
+    await pool.end();
+  }
+};
+
+main();

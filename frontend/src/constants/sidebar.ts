@@ -28,7 +28,7 @@ export const SIDEBAR_NAVIGATION: SidebarNavItem[] = [
   },
   {
     name: 'Organization Management',
-    path: '/departments',
+    path: ROUTES.ORGANIZATION,
     icon: Building2,
   },
   {

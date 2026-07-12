@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import { api } from '../services/api';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 
@@ -9,6 +11,7 @@ import { MainLayout } from '../layouts/MainLayout';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { SignupPage } from '../pages/auth/SignupPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
+import { InitialSetupPage } from '../pages/setup/InitialSetupPage';
 
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { OrganizationPage } from '../pages/organization/OrganizationPage';
@@ -46,10 +49,47 @@ import { ForbiddenPage } from '../pages/errors/ForbiddenPage';
 import { ROUTES } from '../constants/routes';
 
 export const AppRoutes: React.FC = () => {
+  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const response = await api.get('/system/setup-status');
+        if (response.data?.success) {
+          setIsInitialized(response.data.data.initialized);
+        }
+      } catch (err) {
+        console.error('Failed to retrieve setup status:', err);
+        setIsInitialized(true); // fallback to prevent lockout
+      }
+    };
+    checkStatus();
+  }, []);
+
+  if (isInitialized === null) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <Loader2 className="animate-spin text-primary w-10 h-10" />
+      </div>
+    );
+  }
+
+  if (isInitialized === false) {
+    return (
+      <Routes>
+        <Route path="/setup" element={<InitialSetupPage />} />
+        <Route path="*" element={<Navigate to="/setup" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
       {/* Root redirect to Dashboard */}
       <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+
+      {/* Setup route redirect to dashboard/login when initialized */}
+      <Route path="/setup" element={<Navigate to={ROUTES.LOGIN} replace />} />
 
       {/* Public Routes */}
       <Route element={<PublicRoute />}>

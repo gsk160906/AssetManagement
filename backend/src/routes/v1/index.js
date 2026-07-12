@@ -10,6 +10,8 @@ import reportsRoutes from '../../modules/reports/reports.routes.js';
 import departmentRoutes from '../../modules/departments/department.routes.js';
 import notificationsRoutes from '../../modules/notifications/notifications.routes.js';
 import profileRoutes from '../../modules/profile/profile.routes.js';
+import systemRoutes from '../../modules/system/system.routes.js';
+import usersRoutes from '../../modules/users/users.routes.js';
 
 const router = Router();
 
@@ -25,6 +27,8 @@ router.use('/reports', reportsRoutes);
 router.use('/departments', departmentRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/profile', profileRoutes);
+router.use('/system', systemRoutes);
+router.use('/users', usersRoutes);
 
 export default router;
 

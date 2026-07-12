@@ -122,11 +122,11 @@ export const LoginPage: React.FC = () => {
         Auto-Fill Admin Account
       </button>
 
-      <div className="text-center mt-6 text-sm text-base-content/60">
-        Don't have an account?{' '}
-        <Link to={ROUTES.SIGNUP} className="text-primary hover:underline font-semibold">
-          Create one now
-        </Link>
+      <div className="text-center mt-6 text-xs text-base-content/50">
+        Need an account?{' '}
+        <span className="text-base-content/85 font-semibold block mt-1">
+          Please contact your system administrator.
+        </span>
       </div>
     </Card>
   );
