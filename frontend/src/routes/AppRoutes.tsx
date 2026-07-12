@@ -35,6 +35,7 @@ import { ExpenseReport } from '../pages/reports/ExpenseReport';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
+import { NotificationPreferences } from '../pages/notifications/NotificationPreferences';
 
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 import { ForbiddenPage } from '../pages/errors/ForbiddenPage';
@@ -81,6 +82,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/departments/:id" element={<DepartmentDetails />} />
           <Route path={ROUTES.NOTIFICATIONS} element={<NotificationsPage />} />
+          <Route path="/settings/notifications" element={<NotificationPreferences />} />
           <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
         </Route>

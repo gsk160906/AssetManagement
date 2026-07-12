@@ -1,5 +1,8 @@
-import React from 'react';
-import { Bell, ShieldAlert, RefreshCw, CalendarDays, Key, Wrench } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { 
+  Bell, ShieldAlert, RefreshCw, CalendarDays, Wrench, 
+  Package, Settings, FileText, ClipboardCheck, ArrowLeftRight 
+} from 'lucide-react';
 
 interface NotificationItem {
   id: string;
@@ -19,19 +22,29 @@ interface NotificationsPanelProps {
 export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ notifications, count, onRefresh, isLoading = false }) => {
   const getIcon = (type: string) => {
     switch (type.toUpperCase()) {
-      case 'ALLOCATION': return <Key size={14} className="text-success" />;
+      case 'ASSET': return <Package size={14} className="text-primary" />;
+      case 'TRANSFER': return <ArrowLeftRight size={14} className="text-primary" />;
       case 'BOOKING': return <CalendarDays size={14} className="text-secondary" />;
-      case 'MAINTENANCE': return <Wrench size={14} className="text-error" />;
-      default: return <ShieldAlert size={14} className="text-info" />;
+      case 'MAINTENANCE': return <Wrench size={14} className="text-warning" />;
+      case 'AUDIT': return <ClipboardCheck size={14} className="text-success" />;
+      case 'REPORT': return <FileText size={14} className="text-info" />;
+      case 'SYSTEM': return <Settings size={14} className="text-accent" />;
+      case 'SECURITY': return <ShieldAlert size={14} className="text-error" />;
+      default: return <Bell size={14} className="text-info" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type.toUpperCase()) {
-      case 'ALLOCATION': return 'badge-success text-success-content';
+      case 'ASSET':
+      case 'TRANSFER': return 'badge-primary text-primary-content';
       case 'BOOKING': return 'badge-secondary text-secondary-content';
-      case 'MAINTENANCE': return 'badge-error text-error-content';
-      default: return 'badge-info text-info-content';
+      case 'MAINTENANCE': return 'badge-warning text-warning-content';
+      case 'AUDIT': return 'badge-success text-success-content';
+      case 'REPORT': return 'badge-info text-info-content';
+      case 'SYSTEM': return 'badge-accent text-accent-content';
+      case 'SECURITY': return 'badge-error text-error-content';
+      default: return 'badge-ghost';
     }
   };
 
@@ -88,6 +101,12 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ notifica
             </div>
           ))
         )}
+      </div>
+
+      <div className="pt-3 mt-2 border-t border-base-300/30 text-center shrink-0">
+        <Link to="/notifications" className="text-[10px] font-bold text-primary hover:underline uppercase tracking-wider">
+          View All Alerts
+        </Link>
       </div>
     </div>
   );

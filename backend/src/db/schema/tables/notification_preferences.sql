@@ -1,0 +1,14 @@
+CREATE TABLE notification_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE NOT NULL,
+    maintenance_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    booking_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    audit_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    report_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    asset_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    system_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    email_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    browser_enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

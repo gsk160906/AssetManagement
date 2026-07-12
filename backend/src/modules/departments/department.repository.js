@@ -1,4 +1,5 @@
 import pool from '../../db/index.js';
+import { createNotification as centralCreateNotification } from '../notifications/notifications.service.js';
 
 export const createDepartment = async (data) => {
   const { name, parent_id, manager_id, status } = data;
@@ -245,10 +246,12 @@ export const updateUserDepartment = async (userId, departmentId) => {
 };
 
 export const createNotification = async (userId, type, title, message) => {
-  await pool.query(
-    'INSERT INTO notifications (user_id, type, title, message) VALUES ($1, $2, $3, $4)',
-    [userId, type, title, message]
-  );
+  await centralCreateNotification(userId, {
+    title,
+    message,
+    category: 'SYSTEM',
+    priority: 'MEDIUM'
+  });
 };
 
 export const createActivityLog = async (userId, action, moduleName, entity, entityId, metadata) => {

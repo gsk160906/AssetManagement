@@ -3,6 +3,7 @@ import path from 'path';
 import { Parser } from 'json2csv';
 import PDFDocument from 'pdfkit';
 import * as repo from './reports.repository.js';
+import { createNotification as centralCreateNotification } from '../notifications/notifications.service.js';
 
 // Ensure public/exports directory exists
 const EXPORTS_DIR = path.join(process.cwd(), 'public', 'exports');
@@ -111,6 +112,16 @@ export const exportCSV = async (type, filters, userId) => {
     fileName
   });
 
+  // Trigger Notification
+  await centralCreateNotification(userId, {
+    title: 'CSV Export Completed',
+    message: `${type.replace('_', ' ')} report has been exported to CSV format successfully.`,
+    category: 'REPORT',
+    priority: 'MEDIUM',
+    actionUrl: `/exports/${fileName}`,
+    actionLabel: 'Download CSV'
+  });
+
   return {
     fileName,
     downloadUrl: `/exports/${fileName}`
@@ -204,6 +215,16 @@ export const exportPDF = async (type, filters, userId) => {
     fileFormat: 'PDF',
     filters,
     fileName
+  });
+
+  // Trigger Notification
+  await centralCreateNotification(userId, {
+    title: 'PDF Export Completed',
+    message: `${type.replace('_', ' ')} report has been exported to PDF format successfully.`,
+    category: 'REPORT',
+    priority: 'MEDIUM',
+    actionUrl: `/exports/${fileName}`,
+    actionLabel: 'Download PDF'
   });
 
   return {

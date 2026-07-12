@@ -1,5 +1,6 @@
 import pool from '../../db/index.js';
 import * as repo from './audits.repository.js';
+import { createNotification as centralCreateNotification } from '../notifications/notifications.service.js';
 
 export const getAudits = async (filters) => {
   const [audits, total] = await Promise.all([
@@ -32,11 +33,12 @@ export const createAudit = async (user, data) => {
     await repo.createAuditLog(client, audit.id, user.id, 'CREATE_AUDIT', `Audit session ${audit.audit_code} created.`);
 
     // Create Notification to auditor
-    await client.query(
-      `INSERT INTO notifications (user_id, type, title, message)
-       VALUES ($1, 'AUDIT', 'New Audit Assigned', $2)`,
-      [data.auditor_id, `New audit assigned: ${data.audit_name} (${audit.audit_code}).`]
-    );
+    await centralCreateNotification(data.auditor_id, {
+      title: 'New Audit Assigned',
+      message: `New audit assigned: ${data.audit_name} (${audit.audit_code}).`,
+      category: 'AUDIT',
+      priority: 'MEDIUM'
+    });
 
     await client.query('COMMIT');
     return audit;
@@ -63,11 +65,12 @@ export const startAudit = async (user, id) => {
     await repo.createAuditLog(client, id, user.id, 'START_AUDIT', `Audit session ${audit.audit_code} started, assets initialized.`);
 
     // Create notification
-    await client.query(
-      `INSERT INTO notifications (user_id, type, title, message)
-       VALUES ($1, 'AUDIT', 'Audit Started', $2)`,
-      [audit.auditor_id, `Audit ${audit.audit_code} has started.`]
-    );
+    await centralCreateNotification(audit.auditor_id, {
+      title: 'Audit Started',
+      message: `Audit ${audit.audit_code} has started.`,
+      category: 'AUDIT',
+      priority: 'MEDIUM'
+    });
 
     await client.query('COMMIT');
     return true;
@@ -170,11 +173,12 @@ export const completeAudit = async (user, id) => {
     await repo.createAuditLog(client, id, user.id, 'COMPLETE_AUDIT', `Audit session completed with accuracy of ${accuracy}.`);
 
     // Create Notification to auditor
-    await client.query(
-      `INSERT INTO notifications (user_id, type, title, message)
-       VALUES ($1, 'AUDIT', 'Audit Completed', $2)`,
-      [audit.auditor_id, `Audit completed. Accuracy: ${accuracy}.`]
-    );
+    await centralCreateNotification(audit.auditor_id, {
+      title: 'Audit Completed',
+      message: `Audit completed. Accuracy: ${accuracy}.`,
+      category: 'AUDIT',
+      priority: 'MEDIUM'
+    });
 
     await client.query('COMMIT');
     return completed;

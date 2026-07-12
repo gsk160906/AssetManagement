@@ -1,4 +1,5 @@
 import pool from '../../db/index.js';
+import { createNotification as centralCreateNotification } from '../notifications/notifications.service.js';
 
 export const getAssets = async (filters = {}) => {
   const {
@@ -685,16 +686,11 @@ export const insertActivityLog = async (client, data) => {
 
 // Notification helper
 export const insertNotification = async (client, data) => {
-  const db = client || pool;
-  const query = `
-    INSERT INTO notifications (user_id, type, title, message)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-  `;
-  return db.query(query, [
-    data.user_id,
-    data.type,
-    data.title,
-    data.message
-  ]);
+  const note = await centralCreateNotification(data.user_id, {
+    title: data.title,
+    message: data.message,
+    category: data.type === 'MAINTENANCE' ? 'MAINTENANCE' : (data.type === 'TRANSFER' ? 'TRANSFER' : 'ASSET'),
+    priority: data.priority || 'MEDIUM'
+  });
+  return { rows: note ? [note] : [] };
 };

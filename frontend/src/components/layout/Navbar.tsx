@@ -6,7 +6,6 @@ import { ROUTES } from '../../constants/routes';
 import { 
   Sun, 
   Moon, 
-  Bell, 
   Search, 
   LogOut, 
   User, 
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -78,15 +78,8 @@ export const Navbar: React.FC = () => {
           {theme === THEMES.LIGHT ? <Moon size={18} /> : <Sun size={18} />}
         </button>
 
-        {/* Static Notification Icon */}
-        <div className="relative">
-          <button className="btn btn-ghost btn-circle btn-sm text-base-content/70 hover:text-base-content">
-            <Bell size={18} />
-            <span className="badge badge-error badge-xs absolute top-1 right-1 text-white border-none py-0 px-1 font-bold text-[9px] scale-90">
-              3
-            </span>
-          </button>
-        </div>
+        {/* Dynamic Notification Bell with Dropdown */}
+        <NotificationBell />
 
         <div className="divider divider-horizontal mx-1 py-3"></div>
 

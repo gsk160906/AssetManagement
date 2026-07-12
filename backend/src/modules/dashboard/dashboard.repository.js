@@ -123,7 +123,7 @@ export const getUpcomingBookings = async (userId, role, departmentId, limit, off
 
 export const getNotifications = async (userId, limit, offset) => {
   const query = `
-    SELECT id, title, message, type, is_read, created_at
+    SELECT id, title, message, COALESCE(category, type::text) AS type, is_read, created_at
     FROM notifications
     WHERE user_id = $1 AND is_read = false AND is_deleted = false
     ORDER BY created_at DESC
