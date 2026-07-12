@@ -160,7 +160,7 @@ New users and employees can only be created by an authenticated Administrator th
 - Dashboard
 - Assets
 - Asset Allocation
-- Maintenance
+- Maintenanc
 - Resource Booking
 - Audit & Inventory Verification
 - Reports & Export
