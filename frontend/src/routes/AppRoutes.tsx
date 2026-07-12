@@ -25,6 +25,11 @@ import { AuditsPage } from '../pages/audits/AuditsPage';
 import { AuditDetails } from '../pages/audits/AuditDetails';
 import { AuditReport } from '../pages/audits/AuditReport';
 import { ReportsPage } from '../pages/reports/ReportsPage';
+import { AssetReport } from '../pages/reports/AssetReport';
+import { MaintenanceReport } from '../pages/reports/MaintenanceReport';
+import { AuditReport as AuditReportSummary } from '../pages/reports/AuditReport';
+import { BookingReport } from '../pages/reports/BookingReport';
+import { ExpenseReport } from '../pages/reports/ExpenseReport';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
@@ -66,6 +71,11 @@ export const AppRoutes: React.FC = () => {
           <Route path="/audits/:id" element={<AuditDetails />} />
           <Route path="/audits/:id/report" element={<AuditReport />} />
           <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
+          <Route path="/reports/assets" element={<AssetReport />} />
+          <Route path="/reports/maintenance" element={<MaintenanceReport />} />
+          <Route path="/reports/audits" element={<AuditReportSummary />} />
+          <Route path="/reports/bookings" element={<BookingReport />} />
+          <Route path="/reports/expenses" element={<ExpenseReport />} />
           <Route path={ROUTES.NOTIFICATIONS} element={<NotificationsPage />} />
           <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />

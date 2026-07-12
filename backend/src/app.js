@@ -28,6 +28,9 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Static Files serving exports
+app.use('/exports', express.static('public/exports'));
+
 // Mount all API routes
 app.use(router);
 

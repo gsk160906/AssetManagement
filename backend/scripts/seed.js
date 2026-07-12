@@ -34,6 +34,7 @@ const main = async () => {
     await client.query('DELETE FROM notifications');
     await client.query('DELETE FROM audit_items');
     await client.query('DELETE FROM audits');
+    await client.query('DELETE FROM report_history');
     await client.query('DELETE FROM maintenance_requests');
     await client.query('DELETE FROM resource_bookings');
     await client.query('DELETE FROM transfer_requests');

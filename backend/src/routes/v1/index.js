@@ -6,6 +6,7 @@ import allocationRoutes from '../../modules/allocation/allocation.routes.js';
 import maintenanceRoutes from '../../modules/maintenance/maintenance.routes.js';
 import bookingRoutes from '../../modules/bookings/booking.routes.js';
 import auditRoutes from '../../modules/audits/audits.routes.js';
+import reportsRoutes from '../../modules/reports/reports.routes.js';
 
 const router = Router();
 
@@ -17,8 +18,10 @@ router.use('/maintenance', maintenanceRoutes);
 router.use('/allocations', allocationRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/audits', auditRoutes);
+router.use('/reports', reportsRoutes);
 
 export default router;
+
 
 
 
